@@ -9,36 +9,47 @@ import urllib
 import urllib2
 from bs4 import BeautifulSoup
 import requests
-from lxml import etree
+
 
 reload(sys)
 sys.setdefaultencoding('utf-8')
 if(len(sys.argv)>=2):
     user_id = (int)(sys.argv[1])
 else:
-    user_id = (int)(raw_input(u"请输入user_id: "))
+    #user_id = (int)(raw_input(u"请输入user_id: "))
+    user_id = 1785051383
 
 cookie = {"Cookie": ("_T_WM=ba9ca6cf0c242230b0b02cc2999f082c;"
-                     "SUHB=079inX36MxaWKP;" 
-                     "H5_INDEX=3;" 
-                     "H5_INDEX_TITLE=%E6%9D%8E%E5%BB%BA%E5%87%AFli;" 
-                     "M_WEIBOCN_PARAMS=uicode%3D20000173;" 
-                     "SUB=_2A256retqDeTxGeRO6FAT8SfNzTuIHXVWUfUirDV6PUJbkdBeLVnxkW0h0cryW7OME32IODuF3gFiLgNkMA..")}
-
+                     "ALF=1473650538;"
+                     "SCF=AgKXtrN1eQdopeXBBkOn_FlCMdn7iXFQsrKkhqWKEaLOxb2vQrmPaQkRv4mdSkrV_cjeZiiDjHdgWtbfCLkCWBI.;"
+                     "SUB=_2A256tVYKDeTxGeRO6FAT8SfNzTuIHXVWVnpCrDV6PUNbktBeLUv2kW2YB5v06cuGST-jsCIj8PP3pXcE0A..;"
+                     "SUBP=0033WrSXqPxfM725Ws9jqgMF55529P9D9WhdP4labCQQTUd1BBj3w4kL5JpX5KMhUgL.Foz7e0zEeK.pSoM2dJLoIpXLxKqL1-BL12-LxK-LB.zLB.2LxK-L1hMLB-9jIBtt;"
+                     "SUHB=0XDkRf8qxsWNei;"
+                     "SSOLoginState=1471227482;"
+                     "H5_INDEX=1;"
+                     "H5_INDEX_TITLE=%E6%9D%8E%E5%BB%BA%E5%87%AFli;"
+                     "M_WEIBOCN_PARAMS=uicode%3D20000174")}
 url = 'http://weibo.cn/u/%d?filter=1&page=1'%user_id
-
 html = requests.get(url, cookies = cookie).content
 print html
-selector = etree.HTML(html)
+filepath = os.getcwd() + "/text"
+fileHandle = open(filepath,'w')
+fileHandle.write(html)
+
+soup = BeautifulSoup(html, 'html5lib')
 
 print "----selector----"
-print selector
+print soup
 
-pageNum = (int)(selector.xpath('//input[@name="mp"]')[0].attrib['value'])
-#pageNum = 5
+temp = soup.find_all('ctt')
+print temp
+
+#pageNum = (int)(selector.xpath('//input[@name="mp"]')[0].attrib['value'])
+pageNum = 5
 print "PageNUM : %d"%pageNum
 
-
+while True:
+    pass
 
 result = ""
 urllist_set = set()
@@ -89,24 +100,5 @@ for eachlink in urllist_set:
 fo2.write(link)
 print u'图片链接爬取完毕'
 
-
-if not urllist_set:
-  print u'该页面中不存在图片'
-else:
-  #下载图片,保存在当前目录的pythonimg文件夹下
-  image_path=os.getcwd()+'/weibo_image'
-  if os.path.exists(image_path) is False:
-    os.mkdir(image_path)
-  x=1
-  for imgurl in urllist_set:
-    temp= image_path + '/%s.jpg' % x
-    print u'正在下载第%s张图片' % x
-    try:
-      urllib.urlretrieve(urllib2.urlopen(imgurl).geturl(),temp)
-    except:
-      print u"该图片下载失败:%s"%imgurl
-    x+=1
-
 print u'原创微博爬取完毕，共%d条，保存路径%s'%(word_count-4,word_path)
-print u'微博图片爬取完毕，共%d张，保存路径%s'%(image_count-1,image_path)
 
