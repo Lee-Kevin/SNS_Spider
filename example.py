@@ -1,5 +1,8 @@
-from bs4 import BeautifulSoup
+#!/usr/bin/env python
+# -*- coding: utf-8 -*-
 
+from bs4 import BeautifulSoup
+import re
 html_doc = """
 <html><head><title>The Dormouse's story</title></head>
 <body>
@@ -16,6 +19,10 @@ and they lived at the bottom of a well.</p>
 
 #soup = BeautifulSoup(html_doc, 'html.parser')
 soup = BeautifulSoup(html_doc, 'html5lib')
+str = "08月14日 16:42"
+pattern = re.compile(r'^(\d)')
+print pattern.match(str)
+#date = re.sub(r'^(\d{2})',"",str)
 
 if __name__ == "__main__":
 #    print(soup.prettify())

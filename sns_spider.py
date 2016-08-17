@@ -9,7 +9,8 @@ import urllib
 import urllib2
 from bs4 import BeautifulSoup
 import requests
-
+import time
+import Queue
 
 reload(sys)
 sys.setdefaultencoding('utf-8')
@@ -20,85 +21,59 @@ else:
     user_id = 1785051383
 
 cookie = {"Cookie": ("_T_WM=ba9ca6cf0c242230b0b02cc2999f082c;"
-                     "ALF=1473650538;"
-                     "SCF=AgKXtrN1eQdopeXBBkOn_FlCMdn7iXFQsrKkhqWKEaLOxb2vQrmPaQkRv4mdSkrV_cjeZiiDjHdgWtbfCLkCWBI.;"
-                     "SUB=_2A256tVYKDeTxGeRO6FAT8SfNzTuIHXVWVnpCrDV6PUNbktBeLUv2kW2YB5v06cuGST-jsCIj8PP3pXcE0A..;"
+                     "ALF=1473925225;"
+                     "SCF=AgKXtrN1eQdopeXBBkOn_FlCMdn7iXFQsrKkhqWKEaLOvsdX199Xm3L55pzbpM5yXaQJV6IXGnbUlpqJDt6W-vY.;"
+                     "SUB=_2A256t8_3DeTxGeRO6FAT8SfNzTuIHXVWW9G_rDV6PUNbktBeLVT4kW1NCCUtKRMSaGPpnjbluGsLwNKCcA..;"
                      "SUBP=0033WrSXqPxfM725Ws9jqgMF55529P9D9WhdP4labCQQTUd1BBj3w4kL5JpX5KMhUgL.Foz7e0zEeK.pSoM2dJLoIpXLxKqL1-BL12-LxK-LB.zLB.2LxK-L1hMLB-9jIBtt;"
-                     "SUHB=0XDkRf8qxsWNei;"
-                     "SSOLoginState=1471227482;"
-                     "H5_INDEX=1;"
-                     "H5_INDEX_TITLE=%E6%9D%8E%E5%BB%BA%E5%87%AFli;"
+                     "SUHB=0C1D3u25gu-YLZ;"
+                     "SSOLoginState=1471397800;"
                      "M_WEIBOCN_PARAMS=uicode%3D20000174")}
+
 url = 'http://weibo.cn/u/%d?filter=1&page=1'%user_id
-html = requests.get(url, cookies = cookie).content
-print html
-filepath = os.getcwd() + "/text"
-fileHandle = open(filepath,'w')
-fileHandle.write(html)
 
-soup = BeautifulSoup(html, 'html5lib')
+soup = BeautifulSoup(requests.get(url, cookies = cookie).content, 'html5lib')
 
-print "----selector----"
-print soup
+print "------------------------------"
+new_message = ''
+last_message = ''
+spans = soup.find_all(re.compile("span"),limit = 12)
+print spans[2].text[0:17]
+new_message = spans[9].text + spans[8].text
 
-temp = soup.find_all('ctt')
-print temp
+print new_message
+last_message = new_message
+new_message1 = spans[11].text + " :" + spans[10].text
+print new_message1
+filepath = os.getcwd() + "/message"
+filepath1 = os.getcwd() + "/printFlag"
 
-#pageNum = (int)(selector.xpath('//input[@name="mp"]')[0].attrib['value'])
-pageNum = 5
-print "PageNUM : %d"%pageNum
+fileHandle = open(filepath, "wb")
+fileHandle.write(new_message + "\n")
+
+fileHandle.write(new_message1 + "\n")
+fileHandle.close()
+
+fileHandle = open(filepath1,"wb")
+fileHandle.write("1")
+fileHandle.close()
 
 while True:
-    pass
+    try:
+        soup = BeautifulSoup(requests.get(url, cookies=cookie).content, 'html5lib')
+        spans = soup.find_all(re.compile("span"), limit=12)
+        new_message = spans[9].text + spans[8].text
+        if last_message == new_message:
+            print "----The Result is Different----\n"
+        else :
+            fileHandle = open(filepath, "wb")
+            fileHandle.write(new_message + "\n")
+            fileHandle.close()
+            fileHandle = open(filepath1,"wb")
+            fileHandle.write("1")
+            fileHandle.close()
+            last_message = new_message
 
-result = ""
-urllist_set = set()
-word_count = 1
-image_count = 1
-
-
-print u'爬虫准备就绪...'
-
-for page in range(1,pageNum+1):
-
-  #获取lxml页面
-  url = 'http://weibo.cn/u/%d?filter=1&page=%d'%(user_id,page)
-  lxml = requests.get(url, cookies = cookie).content
-
-  #文字爬取
-  selector = etree.HTML(lxml)
-  content = selector.xpath('//span[@class="ctt"]')
-  for each in content:
-    text = each.xpath('string(.)')
-    if word_count>=4:
-      text = "%d :"%(word_count-3) +text+"\n\n"
-    else :
-      text = text+"\n\n"
-    result = result + text
-    word_count += 1
-
-  #图片爬取
-  soup = BeautifulSoup(lxml, "lxml")
-  urllist = soup.find_all('a',href=re.compile(r'^http://weibo.cn/mblog/oripic',re.I))
-  first = 0
-  for imgurl in urllist:
-    urllist_set.add(requests.get(imgurl['href'], cookies = cookie).url)
-    image_count +=1
-
-filepath = os.getcwd() + ("/%s"%user_id)
-print filepath
-fo = open(filepath, "wb")
-fo.write(result)
-word_path=os.getcwd()+'/%d'%user_id
-print u'文字微博爬取完毕'
-
-link = ""
-filepath = os.getcwd() + ("/%s_imageurls"%user_id)
-fo2 = open(filepath, "wb")
-for eachlink in urllist_set:
-  link = link + eachlink +"\n"
-fo2.write(link)
-print u'图片链接爬取完毕'
-
-print u'原创微博爬取完毕，共%d条，保存路径%s'%(word_count-4,word_path)
+        time.sleep(6)
+    except Exception,e:
+        print e
 
