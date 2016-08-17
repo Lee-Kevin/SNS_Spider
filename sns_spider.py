@@ -44,8 +44,10 @@ print new_message
 last_message = new_message
 new_message1 = spans[11].text + " :" + spans[10].text
 print new_message1
-filepath = os.getcwd() + "/message"
-filepath1 = os.getcwd() + "/printFlag"
+# filepath = os.getcwd() + "/message"
+# filepath1 = os.getcwd() + "/printFlag"
+filepath = "/tmp" + "/message"
+filepath1 = "/tmp" + "/printFlag"
 
 fileHandle = open(filepath, "wb")
 fileHandle.write(new_message + "\n")
