@@ -157,7 +157,7 @@ void bridgeGetPrintMessage() {
     
     printer.setSize('L');        // Set type size, accepts 'S', 'M', 'L'  
     printer.justify('C');
-    printer.println("MESSAGE");
+    printer.println("Lambor's SNS");
     printer.setDefault();
     Serial.println("-----------Print the message-----------------");
     Serial.println(str.length());
