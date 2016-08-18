@@ -1,0 +1,14 @@
+#!/bin/ash /etc/rc.common
+
+START=99
+
+start() {
+        echo "Start SNS Spider" 
+        python /root/SNS_Spider/sns_spider.py &  
+
+}
+
+stop() {
+        kill -9 `ps | grep "python /root/SNS_Spider/sns_spider.py" | awk '{if(NR==1)print$1}'`
+
+}
